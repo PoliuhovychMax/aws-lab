@@ -1,3 +1,6 @@
-output "lambda_arn" {
-  value = aws_lambda_function.this.arn
+output "lambda_names" {
+  value = {
+    for k, v in aws_lambda_function.this :
+    k => v.function_name
+  }
 }

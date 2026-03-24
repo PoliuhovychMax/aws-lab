@@ -1,3 +1,4 @@
-variable "function_name" {
-  default = "my-lambda"
+variable "function_name" { 
+    default = "my-lambda"
 }
+
