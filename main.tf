@@ -7,3 +7,13 @@ terraform {
     dynamodb_table = "terraform-tfstate-lock"
   }
 }
+
+module "courses_table" {
+    source = "./modules/dynamodb"
+    table_name = "courses"
+}
+
+module "authors_table" {
+    source = "./modules/dynamodb"
+    table_name = "authors"
+}
