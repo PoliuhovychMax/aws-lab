@@ -4,11 +4,11 @@ variable "function_name" {
 
 variable "lambdas" {
   default = {
-    get-all-authors ={file = "lambda/get-all-authors.zip"}
-    get-all-courses = {file = "lambda/get-all-courses.zip"}
-    save-course = {file = "lambda/save-course.zip"}
-    update-course = {file = "lambda/update-course.zip"}
-    get-course = {file = "lambda/get-course.zip"}
-    delete-course = {file = "lambda/delete-course.zip"}
+    get-all-users ={file = "lambda/get-all-users.zip"}
+    get-all-posts = {file = "lambda/get-all-posts.zip"}
+    save-post = {file = "lambda/save-post.zip"}
+    update-post = {file = "lambda/update-post.zip"}
+    get-post = {file = "lambda/get-post.zip"}
+    delete-post = {file = "lambda/delete-post.zip"}
   }
 }
