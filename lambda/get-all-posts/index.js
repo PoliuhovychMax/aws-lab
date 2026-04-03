@@ -6,14 +6,22 @@ const dynamodb = new AWS.DynamoDB({
 
 exports.handler = (event, context, callback) => {
   const params = {
-    TableName: "authors"
+    TableName: "posts"
   };
   dynamodb.scan(params, (err, data) => {
     if (err) {
       console.log(err);
       callback(err);
     } else {
-      callback(null, data);
+      const posts = data.Items.map(item => {
+        return {
+          id: item.id.S,
+          title: item.title.S,
+          userId: item.userId.S,
+          content: item.length.S
+        };
+      });
+      callback(null, posts);
     }
   });
 };

@@ -11,7 +11,7 @@ exports.handler = (event, context, callback) => {
         S: event.id
       }
     },
-    TableName: "courses"
+    TableName: "posts"
   };
   dynamodb.deleteItem(params, (err, data) => {
     if (err) {

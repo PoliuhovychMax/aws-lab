@@ -10,12 +10,12 @@ terraform {
 
 module "courses_table" {
     source = "./modules/dynamodb"
-    table_name = "courses"
+    table_name = "posts"
 }
 
 module "authors_table" {
     source = "./modules/dynamodb"
-    table_name = "authors"
+    table_name = "users"
 }
 
 resource "aws_iam_role" "lambda_role" {

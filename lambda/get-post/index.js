@@ -11,7 +11,7 @@ exports.handler = (event, context, callback) => {
         S: event.id
       }
     },
-    TableName: "courses"
+    TableName: "posts"
   };
   dynamodb.getItem(params, (err, data) => {
     if (err) {
@@ -21,8 +21,7 @@ exports.handler = (event, context, callback) => {
       callback(null, {
         id: data.Item.id.S,
         title: data.Item.title.S,
-        watchHref: data.Item.watchHref.S,
-        authorId: data.Item.authorId.S,
+        userId: data.Item.userId.S,
         length: data.Item.length.S,
         category: data.Item.category.S
       });
