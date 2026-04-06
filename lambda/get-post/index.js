@@ -1,30 +1,27 @@
-const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB({
-  region: "eu-central-1",
-  apiVersion: "2012-08-10"
-});
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 
-exports.handler = (event, context, callback) => {
+const client = new DynamoDBClient({ region: "eu-central-1" });
+
+export const handler = async (event) => {
   const params = {
+    TableName: "posts",
     Key: {
-      id: {
-        S: event.id
-      }
-    },
-    TableName: "posts"
-  };
-  dynamodb.getItem(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      callback(err);
-    } else {
-      callback(null, {
-        id: data.Item.id.S,
-        title: data.Item.title.S,
-        userId: data.Item.userId.S,
-        length: data.Item.length.S,
-        category: data.Item.category.S
-      });
+      id: { S: event.id }
     }
-  });
+  };
+  try {
+    const data = await client.send(new GetItemCommand(params));
+    if (!data.Item) {
+      return { message: "Post not found" };
+    }
+    return {
+      id: data.Item.id.S,
+      title: data.Item.title.S,
+      authorId: data.Item.authorId.S,
+      text: data.Item.text.S
+    };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };

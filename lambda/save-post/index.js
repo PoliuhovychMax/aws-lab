@@ -1,47 +1,29 @@
-const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB({
-  region: "eu-cental-1",
-  apiVersion: "2012-08-10"
-});
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
-const replaceAll = (str, find, replace) => {
-  return str.replace(new RegExp(find, "g"), replace);
-};
+const client = new DynamoDBClient({ region: "eu-central-1" });
 
-exports.handler = (event, context, callback) => {
-  const id = replaceAll(event.title, " ", "-").toLowerCase();
+export const handler = async (event) => {
+  const body = typeof event.body === "string" ? JSON.parse(event.body) : event;
+  const id = body.title.toLowerCase().replace(/\s+/g, "-");
   const params = {
+    TableName: "posts",
     Item: {
-      id: {
-        S: id
-      },
-      title: {
-        S: event.title
-      },
-      authorId: {
-        S: event.userId
-      },
-      length: {
-        S: event.length
-      },
-      category: {
-        S: event.category
-      }
-    },
-    TableName: "posts"
-  };
-  dynamodb.putItem(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      callback(err);
-    } else {
-      callback(null, {
-        id: params.Item.id.S,
-        title: params.Item.title.S,
-        userId: params.Item.userId.S,
-        length: params.Item.length.S,
-        category: params.Item.category.S
-      });
+      id: { S: id },
+      title: { S: body.title },
+      authorId: { S: body.authorId },
+      text: { S: body.text }
     }
-  });
+  };
+  try {
+    await client.send(new PutItemCommand(params));
+    return {
+      id,
+      title: event.title,
+      authorId: event.authorId,
+      text: event.text
+    };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };

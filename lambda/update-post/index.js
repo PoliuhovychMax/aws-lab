@@ -1,42 +1,36 @@
-const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB({
-  region: "eu-central-1",
-  apiVersion: "2012-08-10"
-});
+import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
-exports.handler = (event, context, callback) => {
+const client = new DynamoDBClient({ region: "eu-central-1" });
+
+export const handler = async (event) => {
+  const body = typeof event.body === "string" ? JSON.parse(event.body) : event;
+  const id = body.title.toLowerCase().replace(/\s+/g, "-");
   const params = {
-    Item: {
-      id: {
-        S: event.id
-      },
-      title: {
-        S: event.title
-      },
-      authorId: {
-        S: event.userId
-      },
-      length: {
-        S: event.length
-      },
-      category: {
-        S: event.category
-      }
+    TableName: "posts",
+    Key: {
+      id: { S: id }
     },
-    TableName: "posts"
+    UpdateExpression: "SET title = :title, authorId = :authorId, #len = :length, text = :text",
+    ExpressionAttributeNames: {
+      "#len": "length"
+    },
+    ExpressionAttributeValues: {
+      ":title": { S: body.title },
+      ":authorId": { S: body.authorId },
+      ":text": { S: body.text }
+    },
+    ReturnValues: "ALL_NEW"
   };
-  dynamodb.putItem(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      callback(err);
-    } else {
-      callback(null, {
-        id: params.Item.id.S,
-        title: params.Item.title.S,
-        userId: params.Item.userId.S,
-        length: params.Item.length.S,
-        category: params.Item.category.S
-      });
-    }
-  });
+  try {
+    const result = await client.send(new UpdateItemCommand(params));
+    return {
+    id,
+    title: body.title,
+    authorId: body.authorId,
+    text: body.text
+  };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };

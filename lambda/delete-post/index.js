@@ -1,24 +1,26 @@
-const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB({
-  region: "eu-central-1",
-  apiVersion: "2012-08-10"
-});
+const client = new DynamoDBClient({ region: "eu-central-1" });
 
-exports.handler = (event, context, callback) => {
+export const handler = async (event) => {
   const params = {
+    TableName: "posts",
     Key: {
-      id: {
-        S: event.id
-      }
+      id: { S: event.id }
     },
-    TableName: "posts"
+    ReturnValues: "ALL_OLD"
   };
-  dynamodb.deleteItem(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      callback(err);
-    } else {
-      callback(null, data);
+  try {
+    const data = await client.send(new DeleteItemCommand(params));
+    if (!data.Attributes) {
+      return{ message: "Post not found or already deleted" };
     }
-  });
+    return {
+      id: data.Attributes.id.S,
+      title: data.Attributes.title.S,
+      authorId: data.Attributes.authorId.S,
+      text: data.Attributes.text.S,
+    };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };
