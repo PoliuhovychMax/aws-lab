@@ -18,6 +18,17 @@ module "authors_table" {
     table_name = "users"
 }
 
+resource "aws_lambda_permission" "apigw" {
+  for_each = aws_lambda_function.lambda
+
+  statement_id  = "AllowAPIGatewayInvoke-${each.key}"
+  action        = "lambda:InvokeFunction"
+  function_name = each.value.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "arn_lambda_role"
 
