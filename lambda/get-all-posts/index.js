@@ -1,24 +1,34 @@
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
 
 const client = new DynamoDBClient({ region: "eu-central-1" });
 
-export const handler = async (event) => {
-  const params = {
-    TableName: "posts"
-  };
+exports.handler = async (event) => {
   try {
-    const data = await client.send(new ScanCommand(params));
-    const posts = data.Items.map(item => {
-      return {
-        id: item.id.S,
-        title: item.title.S,
-        authorId: item.authorId.S,
-        text: item.text.S
-      };
-    });
-    return posts;
+    const data = await client.send(new ScanCommand({
+      TableName: "posts"
+    }));
+
+    const posts = data.Items.map(item => ({
+      id: item.id.S,
+      title: item.title.S,
+      authorId: item.authorId.S,
+      text: item.text.S
+    }));
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify(posts)
+    };
+
   } catch (err) {
     console.error(err);
-    throw err;
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify(err.message)
+    };
   }
 };

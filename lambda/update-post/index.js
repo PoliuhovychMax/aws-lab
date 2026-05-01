@@ -1,36 +1,64 @@
-import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+const { DynamoDBClient, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 
 const client = new DynamoDBClient({ region: "eu-central-1" });
 
-export const handler = async (event) => {
-  const body = typeof event.body === "string" ? JSON.parse(event.body) : event;
-  const id = body.title.toLowerCase().replace(/\s+/g, "-");
-  const params = {
-    TableName: "posts",
-    Key: {
-      id: { S: id }
-    },
-    UpdateExpression: "SET title = :title, authorId = :authorId, #len = :length, text = :text",
-    ExpressionAttributeNames: {
-      "#len": "length"
-    },
-    ExpressionAttributeValues: {
-      ":title": { S: body.title },
-      ":authorId": { S: body.authorId },
-      ":text": { S: body.text }
-    },
-    ReturnValues: "ALL_NEW"
-  };
+exports.handler = async (event) => {
   try {
+    const body = typeof event.body === "string"
+      ? JSON.parse(event.body)
+      : event;
+
+    // ❗️ перевірка
+    if (!body.id || !body.title || !body.authorId || !body.text) {
+      return {
+        statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({ message: "Missing required fields" })
+      };
+    }
+
+    const params = {
+      TableName: "posts",
+      Key: {
+        id: { S: body.id }
+      },
+      UpdateExpression: "SET title = :title, authorId = :authorId, text = :text",
+      ExpressionAttributeValues: {
+        ":title": { S: body.title },
+        ":authorId": { S: body.authorId },
+        ":text": { S: body.text }
+      },
+      ReturnValues: "ALL_NEW"
+    };
+
     const result = await client.send(new UpdateItemCommand(params));
+
+    const updatedPost = {
+      id: result.Attributes.id.S,
+      title: result.Attributes.title.S,
+      authorId: result.Attributes.authorId.S,
+      text: result.Attributes.text.S
+    };
+
     return {
-    id,
-    title: body.title,
-    authorId: body.authorId,
-    text: body.text
-  };
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify(updatedPost)
+    };
+
   } catch (err) {
     console.error(err);
-    throw err;
+
+    return {
+      statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify(err.message)
+    };
   }
 };
