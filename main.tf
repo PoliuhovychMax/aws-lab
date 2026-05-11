@@ -8,14 +8,9 @@ terraform {
   }
 }
 
-module "courses_table" {
+module "posts_table" {
     source = "./modules/dynamodb"
     table_name = "posts"
-}
-
-module "authors_table" {
-    source = "./modules/dynamodb"
-    table_name = "users"
 }
 
 resource "aws_lambda_permission" "apigw" {

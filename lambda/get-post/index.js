@@ -4,9 +4,6 @@ const client = new DynamoDBClient({ region: "eu-central-1" });
 
 exports.handler = async (event) => {
   try {
-    // 👉 id може приходити по-різному:
-    // 1. через path: /posts/{id}
-    // 2. через body (рідше для GET, але на всякий)
     let id;
 
     if (event.pathParameters && event.pathParameters.id) {
@@ -31,7 +28,6 @@ exports.handler = async (event) => {
       }
     }));
 
-    // ❗️ якщо не знайдено
     if (!data.Item) {
       return {
         statusCode: 404,
@@ -42,11 +38,11 @@ exports.handler = async (event) => {
       };
     }
 
-    // ✅ якщо знайдено
     const post = {
       id: data.Item.id.S,
       title: data.Item.title.S,
-      authorId: data.Item.authorId.S,
+      authorName: data.Item.authorName.S,
+      authorPassword: data.Item.authorPassword.S,
       text: data.Item.text.S
     };
 

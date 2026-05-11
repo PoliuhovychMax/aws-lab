@@ -1,16 +1,15 @@
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const { randomUUID } = require("crypto");
 
 const client = new DynamoDBClient({ region: "eu-central-1" });
 
 exports.handler = async (event) => {
   try {
-    // 👉 парсимо body
     const body = typeof event.body === "string"
       ? JSON.parse(event.body)
       : event;
 
-    // ❗️ базова валідація
-    if (!body.title || !body.authorId || !body.text) {
+    if (!body.title || !body.authorName || !body.authorPassword || !body.text) {
       return {
         statusCode: 400,
         headers: {
@@ -20,15 +19,15 @@ exports.handler = async (event) => {
       };
     }
 
-    // 👉 генеруємо id
-    const id = body.title.toLowerCase().replace(/\s+/g, "-");
+    const id = randomUUID();
 
     const params = {
       TableName: "posts",
       Item: {
         id: { S: id },
         title: { S: body.title },
-        authorId: { S: body.authorId },
+        authorName: { S: body.authorName },
+        authorPassword: { S: body.authorPassword },
         text: { S: body.text }
       }
     };
@@ -38,7 +37,8 @@ exports.handler = async (event) => {
     const createdPost = {
       id,
       title: body.title,
-      authorId: body.authorId,
+      authorName: body.authorName,
+      authorPassword: body.authorPassword,
       text: body.text
     };
 

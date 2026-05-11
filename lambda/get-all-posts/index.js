@@ -11,7 +11,8 @@ exports.handler = async (event) => {
     const posts = data.Items.map(item => ({
       id: item.id.S,
       title: item.title.S,
-      authorId: item.authorId.S,
+      authorName: item.authorName.S,
+      authorPassword: item.authorPassword.S,
       text: item.text.S
     }));
 

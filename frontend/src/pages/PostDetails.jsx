@@ -14,6 +14,7 @@ export default function PostDetails() {
 
   return (
     <div>
+      <p>{post.authorName}</p>
       <h2>{post.title}</h2>
       <p>{post.text}</p>
     </div>

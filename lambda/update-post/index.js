@@ -8,13 +8,12 @@ exports.handler = async (event) => {
       ? JSON.parse(event.body)
       : event;
 
-    // ❗️ перевірка
-    if (!body.id || !body.title || !body.authorId || !body.text) {
+    const id = event.pathParameters.id;
+
+    if (!id || !body.title || !body.text) {
       return {
         statusCode: 400,
-        headers: {
-          "Access-Control-Allow-Origin": "*"
-        },
+        headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify({ message: "Missing required fields" })
       };
     }
@@ -22,23 +21,27 @@ exports.handler = async (event) => {
     const params = {
       TableName: "posts",
       Key: {
-        id: { S: body.id }
+        id: { S: id }
       },
-      UpdateExpression: "SET title = :title, authorId = :authorId, text = :text",
+      UpdateExpression: "SET title = :title, #txt = :text",
+      ExpressionAttributeNames:{
+        "#txt": "text"
+      },
       ExpressionAttributeValues: {
         ":title": { S: body.title },
-        ":authorId": { S: body.authorId },
         ":text": { S: body.text }
       },
+      ConditionExpression: "attribute_exists(id)",
       ReturnValues: "ALL_NEW"
     };
 
     const result = await client.send(new UpdateItemCommand(params));
 
     const updatedPost = {
-      id: result.Attributes.id.S,
+      id: result.Attributes.id?.S,
       title: result.Attributes.title.S,
-      authorId: result.Attributes.authorId.S,
+      authorName: result.Attributes.authorName.S,
+      authorPassword: result.Attributes.authorPassword.S,
       text: result.Attributes.text.S
     };
 

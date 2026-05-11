@@ -4,7 +4,6 @@ variable "function_name" {
 
 variable "lambdas" {
   default = {
-    get-all-users ={file = "lambda/get-all-users.zip"}
     get-all-posts = {file = "lambda/get-all-posts.zip"}
     save-post = {file = "lambda/save-post.zip"}
     update-post = {file = "lambda/update-post.zip"}

@@ -16,25 +16,22 @@ export default function PostsPage() {
 
   return (
     <div>
-      <h2>Posts</h2>
-
-      {/* 🔹 КНОПКА СТВОРЕННЯ */}
-      <Link to="/PostForm">
+      <Link to="/post-form">
         <button>Create Post</button>
       </Link>
-
+      <h2>Posts</h2>
       {posts.map(p => (
         <div key={p.id}>
           <h4>{p.title}</h4>
-          <p>{p.authorId}</p>
+          <p>{p.authorName}</p>
           <p>{p.text}</p>
 
-          {/* 🔹 КНОПКА РЕДАГУВАННЯ */}
-          <button onClick={() => navigate(`/PostItem/${p.id}`)}>
+          <button onClick={() => navigate(`/post-item/${p.id}`)}>
             Edit
           </button>
-
-          {/* 🔹 ВИДАЛЕННЯ */}
+          <button onClick={() => navigate(`/post-details/${p.id}`)}>
+            Inspect
+          </button>
           <button onClick={() => deletePost(p.id).then(load)}>
             Delete
           </button>

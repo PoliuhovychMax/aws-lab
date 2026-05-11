@@ -1,11 +1,5 @@
 locals{
     routes = {
-        get_all_users = {
-            path = "users"
-            method = "GET"
-            lambda_name = "get-all-users"
-        }
-
         get_all_posts = {
             path = "posts"
             method = "GET"
@@ -54,17 +48,10 @@ resource "aws_api_gateway_resource" "post_id" {
   path_part = "{id}"
 }
 
-resource "aws_api_gateway_resource" "users" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  parent_id = aws_api_gateway_rest_api.api.root_resource_id
-  path_part = "users"
-}
-
 locals {
   resource_map = {
     "posts" = aws_api_gateway_resource.posts.id
     "posts/{id}" = aws_api_gateway_resource.post_id.id
-    "users" = aws_api_gateway_resource.users.id
   }
 }
 
