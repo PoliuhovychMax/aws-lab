@@ -4,6 +4,8 @@ import PostForm from "./components/PostForm";
 import PostItem from "./components/PostItem";
 import PostDetails from "./pages/PostDetails";
 
+import "./style/global.css";
+
 function App() {
   return (
     <BrowserRouter>
